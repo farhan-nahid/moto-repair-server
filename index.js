@@ -30,6 +30,13 @@ client.connect(err => {
       })
     })
 
+    app.get('/all-services', (req, res)=>{
+      serviceCollection.find()
+      .toArray((err, services)=>{
+        res.send( services);
+      })
+    })
+
 
 
 });
