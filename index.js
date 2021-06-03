@@ -30,12 +30,29 @@ client.connect(err => {
       })
     })
 
+    app.post('/add-review', (req,res)=>{
+      const newReview = req.body;
+      reviewCollection.insertOne({name:newReview.name, address:newReview.address, description:newReview.description,img:newReview.img, star:newReview.star})
+      .then(result =>{
+        res.send(result.insertedCount > 0)
+      })
+    })
+
     app.get('/all-services', (req, res)=>{
       serviceCollection.find()
       .toArray((err, services)=>{
         res.send( services);
       })
     })
+
+    app.get('/all-review', (req, res) => {
+      reviewCollection.find({})
+          .toArray((err, reviews) => {
+              res.send(reviews);
+          })
+      });
+
+
 
 
 
