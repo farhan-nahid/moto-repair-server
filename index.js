@@ -14,6 +14,7 @@ app.use(bodyParser.json())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2xoju.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
 
@@ -38,6 +39,23 @@ client.connect(err => {
       })
     })
 
+    app.post('/add-order',(req,res)=>{
+      orderCollection.insertOne(req.body)
+      .then(result=>{
+        res.send(result.insertedCount > 0)
+      })
+    })
+
+    app.post('/addAdmin', (req,res)=>{
+      const newAdmin = req.body.email;
+      adminsCollection.insertOne({email:newAdmin})
+      .then(result =>{
+        res.send(result.insertedCount > 0)
+      })
+    })
+
+
+
     app.get('/all-services', (req, res)=>{
       serviceCollection.find()
       .toArray((err, services)=>{
@@ -45,13 +63,44 @@ client.connect(err => {
       })
     })
 
+
+    app.get('/all-services/:id', (req, res)=>{
+      serviceCollection.find({_id:ObjectID(req.params.id)})
+     .toArray((err, service)=>{
+       res.send( service[0]);
+     })
+  })
+
     app.get('/all-review', (req, res) => {
       reviewCollection.find({})
-          .toArray((err, reviews) => {
-              res.send(reviews);
-          })
-      });
+       .toArray((err, reviews) => {
+          res.send(reviews);
+        })
+    });
 
+    app.get('/all-orders', (req, res) => {
+      orderCollection.find({})
+          .toArray((err, docs) => {
+              res.send(docs);
+          })
+    });
+
+    app.get('/isAdmin', (req, res)=>{
+      const email = req.query.email
+      adminsCollection.find({email:email})
+      .toArray((err, admins) => {
+        res.send(admins.length > 0)
+      })  
+    })
+
+
+
+     app.delete('/service-delete/:id', (req, res)=>{
+      serviceCollection.deleteOne({_id: ObjectId(req.params.id)})
+      .then( result =>{
+        res.send(result.deletedCount > 0)
+      })
+    })
 
 
 
