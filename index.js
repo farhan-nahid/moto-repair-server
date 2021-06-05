@@ -23,6 +23,13 @@ client.connect(err => {
     const adminsCollection = client.db(`${process.env.DB_NAME}`).collection("admins");
     const orderCollection = client.db(`${process.env.DB_NAME}`).collection("orders");
 
+
+                                     /*
+                                                         All Post APIS                    
+                                                                                             
+                                      */
+
+
     app.post('/add-services', (req,res)=>{
       const newService = req.body;
       serviceCollection.insertOne(newService)
@@ -46,7 +53,7 @@ client.connect(err => {
       })
     })
 
-    app.post('/addAdmin', (req,res)=>{
+    app.post('/add-admin', (req,res)=>{
       const newAdmin = req.body.email;
       adminsCollection.insertOne({email:newAdmin})
       .then(result =>{
@@ -55,6 +62,11 @@ client.connect(err => {
     })
 
 
+                                         /*
+                                                         All Get APIS                    
+                                                         
+                                        */
+
 
     app.get('/all-services', (req, res)=>{
       serviceCollection.find()
@@ -62,7 +74,6 @@ client.connect(err => {
         res.send( services);
       })
     })
-
 
     app.get('/all-services/:id', (req, res)=>{
       serviceCollection.find({_id:ObjectID(req.params.id)})
@@ -80,10 +91,17 @@ client.connect(err => {
 
     app.get('/all-orders', (req, res) => {
       orderCollection.find({})
-          .toArray((err, docs) => {
-              res.send(docs);
+          .toArray((err, orders) => {
+              res.send(orders);
           })
     });
+
+    app.get('/orderedByEmail', (req, res)=>{
+      orderCollection.find({email: req.query.email})
+      .toArray((err, order)=>{
+        res.send( order)
+      })
+    })
 
     app.get('/isAdmin', (req, res)=>{
       const email = req.query.email
@@ -94,16 +112,50 @@ client.connect(err => {
     })
 
 
+    
+                                         /*
+                                                         All Delete APIS                    
+                                                         
+                                        */
 
-     app.delete('/service-delete/:id', (req, res)=>{
+
+    app.delete('/service-delete/:id', (req, res)=>{
       serviceCollection.deleteOne({_id: ObjectId(req.params.id)})
       .then( result =>{
         res.send(result.deletedCount > 0)
       })
     })
 
+    app.delete('/cancel-order/:id', (req, res)=>{
+      orderCollection.deleteOne({_id: ObjectId(req.params.id)})
+      .then( result =>{
+        res.send(result.deletedCount > 0)
+      })
+    })
 
 
+    
+                                         /*
+                                                         All Update APIS                    
+                                                         
+                                        */
+
+
+    app.patch('/update-order-status', (req, res) => {
+      const { id, status } = req.body;
+      orderCollection.findOneAndUpdate(
+          { _id: ObjectId(id) },
+          {
+              $set: { status },
+          }
+      ).then(result => res.send(result.lastErrorObject.updatedExisting))
+  })
+
+
+                                           /*
+                                                         Finished All APIS                    
+                                                         
+                                         */
 
 });
 
