@@ -40,7 +40,9 @@ client.connect(err => {
 
     app.post('/add-review', (req,res)=>{
       const newReview = req.body;
-      reviewCollection.insertOne({name:newReview.name, address:newReview.address, description:newReview.description,img:newReview.img, star:newReview.star})
+      reviewCollection.insertOne(
+          {name:newReview.name, address:newReview.address, description:newReview.description,img:newReview.img, star:newReview.star}
+        )
       .then(result =>{
         res.send(result.insertedCount > 0)
       })
@@ -111,6 +113,13 @@ client.connect(err => {
       })  
     })
 
+    app.get('/all-reviews', (req, res) => {
+      reviewCollection.find({})
+          .toArray((err, orders) => {
+              res.send(orders);
+          })
+    });
+
 
     
                                          /*
@@ -128,6 +137,13 @@ client.connect(err => {
 
     app.delete('/cancel-order/:id', (req, res)=>{
       orderCollection.deleteOne({_id: ObjectId(req.params.id)})
+      .then( result =>{
+        res.send(result.deletedCount > 0)
+      })
+    })
+
+    app.delete('/delete-review/:id', (req, res)=>{
+      reviewCollection.deleteOne({_id: ObjectId(req.params.id)})
       .then( result =>{
         res.send(result.deletedCount > 0)
       })
@@ -158,6 +174,14 @@ client.connect(err => {
                                          */
 
 });
+
+
+
+
+                                           /*
+                                                         My Testing APIS                  
+                                                         
+                                         */
 
 app.get('/', (req, res) => {
     res.send('Welcome to Moto Repair Server API');
