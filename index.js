@@ -113,11 +113,11 @@ client.connect(err => {
       })  
     })
 
-    app.get('/all-reviews', (req, res) => {
-      reviewCollection.find({})
-          .toArray((err, orders) => {
-              res.send(orders);
-          })
+    app.get('/all-admin', (req, res) => {
+      adminsCollection.find({})
+       .toArray((err, reviews) => {
+          res.send(reviews);
+        })
     });
 
 
@@ -149,6 +149,13 @@ client.connect(err => {
       })
     })
 
+    app.delete('/remove-admin/:id', (req, res)=>{
+      adminsCollection.deleteOne({_id: ObjectId(req.params.id)})
+      .then( result =>{
+        res.send(result.deletedCount > 0)
+      })
+    })
+
 
     
                                          /*
@@ -174,6 +181,9 @@ client.connect(err => {
                                          */
 
 });
+
+
+
 
 
 
